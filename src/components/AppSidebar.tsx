@@ -1,4 +1,4 @@
-import { FileText, Home, MessageSquare, Settings, Users } from "lucide-react";
+import { FileText, Home, MessageSquare, Settings, Users, Upload } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -12,6 +12,7 @@ import {
 
 const menuItems = [
   { title: "Dashboard", icon: Home, url: "/" },
+  { title: "Submit Job", icon: Upload, url: "/submit-job" },
   { title: "Projects", icon: FileText, url: "/projects" },
   { title: "Localizers", icon: Users, url: "/localizers" },
   { title: "Messages", icon: MessageSquare, url: "/messages" },
