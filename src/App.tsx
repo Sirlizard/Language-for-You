@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import JobSubmission from "./pages/JobSubmission";
+import Profile from "./pages/Profile";
 
 const queryClient = new QueryClient();
 
@@ -57,6 +58,14 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <JobSubmission />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
               </ProtectedRoute>
             }
           />
