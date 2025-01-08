@@ -1,11 +1,30 @@
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { ProfileData } from "./types";
+
+const languages = [
+  { value: "en", label: "English" },
+  { value: "es", label: "Spanish" },
+  { value: "fr", label: "French" },
+  { value: "de", label: "German" },
+  { value: "it", label: "Italian" },
+  { value: "pt", label: "Portuguese" },
+  { value: "ru", label: "Russian" },
+  { value: "zh", label: "Chinese" },
+  { value: "ja", label: "Japanese" },
+  { value: "ko", label: "Korean" },
+];
 
 interface LanguageManagerProps {
   profile: ProfileData | null;
@@ -13,18 +32,18 @@ interface LanguageManagerProps {
 }
 
 export const LanguageManager = ({ profile, onProfileUpdate }: LanguageManagerProps) => {
-  const [newLanguage, setNewLanguage] = useState("");
+  const [selectedLanguage, setSelectedLanguage] = useState("");
   const { toast } = useToast();
 
-  const addLanguage = async () => {
-    if (!newLanguage.trim()) return;
+  const addLanguage = async (language: string) => {
+    if (!language) return;
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
       const currentLanguages = profile?.languages || [];
-      if (currentLanguages.includes(newLanguage)) {
+      if (currentLanguages.includes(language)) {
         toast({
           title: "Error",
           description: "Language already added",
@@ -36,7 +55,7 @@ export const LanguageManager = ({ profile, onProfileUpdate }: LanguageManagerPro
       const { error } = await supabase
         .from("profiles")
         .update({
-          languages: [...currentLanguages, newLanguage],
+          languages: [...currentLanguages, language],
         })
         .eq("id", user.id);
 
@@ -47,7 +66,7 @@ export const LanguageManager = ({ profile, onProfileUpdate }: LanguageManagerPro
         description: "Language added successfully",
       });
       
-      setNewLanguage("");
+      setSelectedLanguage("");
       onProfileUpdate();
     } catch (error) {
       console.error("Error adding language:", error);
@@ -99,12 +118,22 @@ export const LanguageManager = ({ profile, onProfileUpdate }: LanguageManagerPro
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="flex gap-2">
-          <Input
-            value={newLanguage}
-            onChange={(e) => setNewLanguage(e.target.value)}
-            placeholder="Add a language"
-          />
-          <Button onClick={addLanguage}>Add</Button>
+          <Select
+            value={selectedLanguage}
+            onValueChange={setSelectedLanguage}
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select a language" />
+            </SelectTrigger>
+            <SelectContent>
+              {languages.map((language) => (
+                <SelectItem key={language.value} value={language.value}>
+                  {language.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Button onClick={() => addLanguage(selectedLanguage)}>Add</Button>
         </div>
         <div className="flex flex-wrap gap-2">
           {profile?.languages?.map((language) => (

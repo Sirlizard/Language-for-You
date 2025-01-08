@@ -30,7 +30,6 @@ export function Dashboard() {
 
       setUploading(true);
       
-      // Upload to storage
       const filePath = `${crypto.randomUUID()}-${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from('shared_files')
@@ -38,7 +37,6 @@ export function Dashboard() {
 
       if (uploadError) throw uploadError;
 
-      // Save file metadata
       const { error: dbError } = await supabase
         .from('shared_files')
         .insert({
@@ -73,14 +71,16 @@ export function Dashboard() {
     <div className="p-8 font-cambria animate-fade-in">
       <div className="flex justify-between items-center mb-8">
         <h1 className="text-4xl font-bold">Welcome back</h1>
-        <Button disabled={uploading}>
-          <input
-            type="file"
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-            onChange={handleFileUpload}
-          />
-          <Upload className="mr-2" />
-          Upload File
+        <Button disabled={uploading} asChild>
+          <label className="cursor-pointer">
+            <input
+              type="file"
+              className="hidden"
+              onChange={handleFileUpload}
+            />
+            <Upload className="mr-2" />
+            Upload File
+          </label>
         </Button>
       </div>
       
