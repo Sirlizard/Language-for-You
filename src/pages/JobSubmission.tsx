@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Header } from "@/components/Header";
 import {
   Select,
   SelectContent,
@@ -29,7 +30,6 @@ const languages = [
 ];
 
 const getRandomPrice = (language: string) => {
-  // Generate a random price between 100 and 1000
   const basePrice = Math.floor(Math.random() * 900) + 100;
   return basePrice.toFixed(2);
 };
@@ -54,7 +54,6 @@ export default function JobSubmission() {
 
       setUploading(true);
       
-      // Upload to storage
       const filePath = `${crypto.randomUUID()}-${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from('shared_files')
@@ -62,7 +61,6 @@ export default function JobSubmission() {
 
       if (uploadError) throw uploadError;
 
-      // Save file metadata
       const { error: dbError } = await supabase
         .from('shared_files')
         .insert({
@@ -95,69 +93,72 @@ export default function JobSubmission() {
   };
 
   return (
-    <div className="container mx-auto p-8 font-cambria animate-fade-in">
-      <h1 className="text-4xl font-bold mb-8">Submit a Job</h1>
-      
-      <Card className="max-w-2xl mx-auto p-6">
-        <div className="space-y-6">
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <Globe className="h-4 w-4" />
-              Target Language
-            </Label>
-            <Select onValueChange={handleLanguageChange}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select language" />
-              </SelectTrigger>
-              <SelectContent>
-                {languages.map((lang) => (
-                  <SelectItem key={lang.value} value={lang.value}>
-                    {lang.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          {selectedLanguage && (
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="container mx-auto p-8 font-cambria animate-fade-in">
+        <h1 className="text-4xl font-bold mb-8">Submit a Job</h1>
+        
+        <Card className="max-w-2xl mx-auto p-6">
+          <div className="space-y-6">
             <div className="space-y-2">
               <Label className="flex items-center gap-2">
-                <DollarSign className="h-4 w-4" />
-                Estimated Price
+                <Globe className="h-4 w-4" />
+                Target Language
               </Label>
-              <div className="text-2xl font-bold">${price}</div>
+              <Select onValueChange={handleLanguageChange}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select language" />
+                </SelectTrigger>
+                <SelectContent>
+                  {languages.map((lang) => (
+                    <SelectItem key={lang.value} value={lang.value}>
+                      {lang.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-          )}
 
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <MessageSquare className="h-4 w-4" />
-              Additional Notes
-            </Label>
-            <Textarea
-              placeholder="Add any specific requirements or notes..."
-              value={note}
-              onChange={(e) => setNote(e.target.value)}
-            />
-          </div>
+            {selectedLanguage && (
+              <div className="space-y-2">
+                <Label className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4" />
+                  Estimated Price
+                </Label>
+                <div className="text-2xl font-bold">${price}</div>
+              </div>
+            )}
 
-          <div className="space-y-2">
-            <Label className="flex items-center gap-2">
-              <FileUp className="h-4 w-4" />
-              Upload File
-            </Label>
-            <Button disabled={!selectedLanguage || uploading} className="w-full">
-              <input
-                type="file"
-                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                onChange={handleFileUpload}
-                disabled={!selectedLanguage || uploading}
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" />
+                Additional Notes
+              </Label>
+              <Textarea
+                placeholder="Add any specific requirements or notes..."
+                value={note}
+                onChange={(e) => setNote(e.target.value)}
               />
-              {uploading ? "Uploading..." : "Choose File"}
-            </Button>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="flex items-center gap-2">
+                <FileUp className="h-4 w-4" />
+                Upload File
+              </Label>
+              <Button disabled={!selectedLanguage || uploading} className="w-full">
+                <input
+                  type="file"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  onChange={handleFileUpload}
+                  disabled={!selectedLanguage || uploading}
+                />
+                {uploading ? "Uploading..." : "Choose File"}
+              </Button>
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }

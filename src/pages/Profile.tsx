@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { Header } from "@/components/Header";
 import { ProfileHeader } from "@/components/profile/ProfileHeader";
 import { ProfileInformation } from "@/components/profile/ProfileInformation";
 import { LanguageManager } from "@/components/profile/LanguageManager";
@@ -22,7 +23,7 @@ const Profile = () => {
 
       const { data, error } = await supabase
         .from("profiles")
-        .select("username, languages, rating")
+        .select("username, languages, rating, avatar_url")
         .eq("id", user.id)
         .single();
 
@@ -43,11 +44,14 @@ const Profile = () => {
   }, []);
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <ProfileHeader />
-      <div className="grid gap-6 md:grid-cols-2">
-        <ProfileInformation profile={profile} onProfileUpdate={fetchProfile} />
-        <LanguageManager profile={profile} onProfileUpdate={fetchProfile} />
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="container mx-auto p-6 space-y-6">
+        <ProfileHeader profile={profile} onProfileUpdate={fetchProfile} />
+        <div className="grid gap-6 md:grid-cols-2">
+          <ProfileInformation profile={profile} onProfileUpdate={fetchProfile} />
+          <LanguageManager profile={profile} onProfileUpdate={fetchProfile} />
+        </div>
       </div>
     </div>
   );
