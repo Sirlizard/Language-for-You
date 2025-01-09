@@ -17,7 +17,7 @@ interface Job {
   language: string;
   payment_amount: number;
   file_id: string;
-  shared_files!: {
+  shared_files: {
     filename: string;
   };
 }
