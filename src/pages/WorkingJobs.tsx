@@ -38,7 +38,7 @@ const WorkingJobs = () => {
           payment_amount,
           due_date,
           file_id,
-          shared_files (
+          shared_files!file_id (
             filename,
             file_path
           )

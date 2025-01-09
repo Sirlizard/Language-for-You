@@ -17,7 +17,7 @@ interface Job {
   language: string;
   payment_amount: number;
   file_id: string;
-  shared_files: {
+  shared_files!: {
     filename: string;
   };
 }
@@ -35,7 +35,7 @@ const ViewJobs = () => {
           language,
           payment_amount,
           file_id,
-          shared_files (
+          shared_files!file_id (
             filename
           )
         `)
