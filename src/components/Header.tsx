@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, User, Upload, Briefcase, Clock } from "lucide-react";
+import { Home, User, Upload, Briefcase, Clock, RotateCcw } from "lucide-react";
 
 export const Header = () => {
   const location = useLocation();
@@ -37,6 +37,15 @@ export const Header = () => {
               >
                 <Clock className="h-4 w-4" />
                 Working Jobs
+              </Button>
+            </Link>
+            <Link to="/job-return">
+              <Button 
+                variant={isActive("/job-return") ? "default" : "ghost"}
+                className="flex items-center gap-2"
+              >
+                <RotateCcw className="h-4 w-4" />
+                Job Return
               </Button>
             </Link>
             <Link to="/submit-job">

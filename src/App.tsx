@@ -11,12 +11,12 @@ import JobSubmission from "./pages/JobSubmission";
 import Profile from "./pages/Profile";
 import ViewJobs from "./pages/ViewJobs";
 import WorkingJobs from "./pages/WorkingJobs";
+import JobReturn from "./pages/JobReturn";
 
-// Move queryClient outside of component to ensure stable reference
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
       retry: 1,
     },
   },
@@ -47,7 +47,6 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   return isAuthenticated ? <>{children}</> : <Navigate to="/auth" />;
 };
 
-// Make App a function component
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -94,6 +93,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <WorkingJobs />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/job-return"
+              element={
+                <ProtectedRoute>
+                  <JobReturn />
                 </ProtectedRoute>
               }
             />

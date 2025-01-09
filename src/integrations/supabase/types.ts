@@ -19,6 +19,9 @@ export type Database = {
           id: string
           language: string
           payment_amount: number
+          rating: number | null
+          returned_at: string | null
+          returned_file_id: string | null
           status: string
         }
         Insert: {
@@ -30,6 +33,9 @@ export type Database = {
           id?: string
           language: string
           payment_amount: number
+          rating?: number | null
+          returned_at?: string | null
+          returned_file_id?: string | null
           status?: string
         }
         Update: {
@@ -41,12 +47,22 @@ export type Database = {
           id?: string
           language?: string
           payment_amount?: number
+          rating?: number | null
+          returned_at?: string | null
+          returned_file_id?: string | null
           status?: string
         }
         Relationships: [
           {
             foreignKeyName: "jobs_file_id_fkey"
             columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "shared_files"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "jobs_returned_file_id_fkey"
+            columns: ["returned_file_id"]
             isOneToOne: false
             referencedRelation: "shared_files"
             referencedColumns: ["id"]
