@@ -13,6 +13,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 
+interface Job {
+  id: string;
+  language: string;
+  payment_amount: number;
+  due_date: string;
+  file_id: string;
+  shared_files: {
+    filename: string;
+    file_path: string;
+  };
+}
+
 const WorkingJobs = () => {
   const { data: jobs } = useQuery({
     queryKey: ["working-jobs"],
@@ -35,7 +47,7 @@ const WorkingJobs = () => {
         .eq("accepted_by", user?.id);
 
       if (error) throw error;
-      return data;
+      return data as Job[];
     },
   });
 
@@ -47,7 +59,6 @@ const WorkingJobs = () => {
 
       if (error) throw error;
 
-      // Create a download link
       const url = URL.createObjectURL(data);
       const link = document.createElement("a");
       link.href = url;

@@ -12,6 +12,16 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 
+interface Job {
+  id: string;
+  language: string;
+  payment_amount: number;
+  file_id: string;
+  shared_files: {
+    filename: string;
+  };
+}
+
 const ViewJobs = () => {
   const { toast } = useToast();
 
@@ -32,7 +42,7 @@ const ViewJobs = () => {
         .eq("status", "open");
 
       if (error) throw error;
-      return data;
+      return data as Job[];
     },
   });
 

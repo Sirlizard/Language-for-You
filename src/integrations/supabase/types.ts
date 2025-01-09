@@ -9,6 +9,50 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      jobs: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          due_date: string | null
+          file_id: string
+          id: string
+          language: string
+          payment_amount: number
+          status: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          due_date?: string | null
+          file_id: string
+          id?: string
+          language: string
+          payment_amount: number
+          status?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          due_date?: string | null
+          file_id?: string
+          id?: string
+          language?: string
+          payment_amount?: number
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jobs_file_id_fkey"
+            columns: ["file_id"]
+            isOneToOne: false
+            referencedRelation: "shared_files"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
