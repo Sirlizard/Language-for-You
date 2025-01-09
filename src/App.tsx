@@ -9,6 +9,8 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import JobSubmission from "./pages/JobSubmission";
 import Profile from "./pages/Profile";
+import ViewJobs from "./pages/ViewJobs";
+import WorkingJobs from "./pages/WorkingJobs";
 
 // Move queryClient outside of component to ensure stable reference
 const queryClient = new QueryClient({
@@ -76,6 +78,22 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Profile />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/view-jobs"
+              element={
+                <ProtectedRoute>
+                  <ViewJobs />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/working-jobs"
+              element={
+                <ProtectedRoute>
+                  <WorkingJobs />
                 </ProtectedRoute>
               }
             />

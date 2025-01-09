@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, User, Upload } from "lucide-react";
+import { Home, User, Upload, Briefcase, Clock } from "lucide-react";
 
 export const Header = () => {
   const location = useLocation();
@@ -21,6 +21,24 @@ export const Header = () => {
             </Button>
           </Link>
           <div className="flex items-center gap-4">
+            <Link to="/view-jobs">
+              <Button 
+                variant={isActive("/view-jobs") ? "default" : "ghost"}
+                className="flex items-center gap-2"
+              >
+                <Briefcase className="h-4 w-4" />
+                View Jobs
+              </Button>
+            </Link>
+            <Link to="/working-jobs">
+              <Button 
+                variant={isActive("/working-jobs") ? "default" : "ghost"}
+                className="flex items-center gap-2"
+              >
+                <Clock className="h-4 w-4" />
+                Working Jobs
+              </Button>
+            </Link>
             <Link to="/submit-job">
               <Button 
                 variant={isActive("/submit-job") ? "default" : "ghost"}
