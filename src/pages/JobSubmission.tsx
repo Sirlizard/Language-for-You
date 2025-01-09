@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Header } from "@/components/Header";
+import { useToast } from "@/components/ui/use-toast";
+import { useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Select,
   SelectContent,
@@ -13,9 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { FileUp, DollarSign, MessageSquare, Globe } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { Label } from "@/components/ui/label";
 
 const languages = [
   { value: "es", label: "Spanish" },
@@ -54,6 +53,7 @@ export default function JobSubmission() {
 
       setUploading(true);
       
+      // Upload file to storage
       const filePath = `${crypto.randomUUID()}-${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from('shared_files')
@@ -61,7 +61,8 @@ export default function JobSubmission() {
 
       if (uploadError) throw uploadError;
 
-      const { error: dbError } = await supabase
+      // Create shared_files record
+      const { data: fileData, error: fileError } = await supabase
         .from('shared_files')
         .insert({
           filename: file.name,
@@ -70,16 +71,30 @@ export default function JobSubmission() {
           file_size: file.size,
           notes: note,
           uploader_id: (await supabase.auth.getUser()).data.user?.id
+        })
+        .select()
+        .single();
+
+      if (fileError) throw fileError;
+
+      // Create job record
+      const { error: jobError } = await supabase
+        .from('jobs')
+        .insert({
+          file_id: fileData.id,
+          language: selectedLanguage,
+          payment_amount: parseFloat(price),
+          status: 'open'
         });
 
-      if (dbError) throw dbError;
+      if (jobError) throw jobError;
 
       toast({
         title: "Success",
         description: "Job submitted successfully",
       });
 
-      navigate("/");
+      navigate("/view-jobs");
     } catch (error) {
       console.error('Upload error:', error);
       toast({
