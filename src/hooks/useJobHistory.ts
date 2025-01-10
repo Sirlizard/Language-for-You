@@ -25,7 +25,7 @@ export const useJobHistory = () => {
             filename,
             file_path
           ),
-          translator_profile:profiles!jobs_accepted_by_fkey (
+          translator_profile:profiles!jobs_accepted_by_profiles_fkey (
             username,
             rating
           )
@@ -34,7 +34,14 @@ export const useJobHistory = () => {
         .order("returned_at", { ascending: false });
 
       if (error) throw error;
-      return data as Job[];
+      
+      // Ensure translator_profile is null if not found
+      const jobsWithNullCheck = data.map(job => ({
+        ...job,
+        translator_profile: job.translator_profile || null
+      }));
+      
+      return jobsWithNullCheck as Job[];
     },
   });
 };

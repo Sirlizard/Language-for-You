@@ -54,6 +54,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "jobs_accepted_by_profiles_fkey"
+            columns: ["accepted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "jobs_file_id_fkey"
             columns: ["file_id"]
             isOneToOne: false
