@@ -12,6 +12,7 @@ import Profile from "./pages/Profile";
 import ViewJobs from "./pages/ViewJobs";
 import WorkingJobs from "./pages/WorkingJobs";
 import History from "./pages/History";
+import PremiumTranslation from "./pages/PremiumTranslation";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -101,6 +102,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <History />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/premium-translation"
+              element={
+                <ProtectedRoute>
+                  <PremiumTranslation />
                 </ProtectedRoute>
               }
             />

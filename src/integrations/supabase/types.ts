@@ -17,12 +17,15 @@ export type Database = {
           due_date: string | null
           file_id: string
           id: string
+          is_premium_translation: boolean | null
           language: string
           payment_amount: number
           rating: number | null
           returned_at: string | null
           returned_file_id: string | null
+          source_language: string | null
           status: string
+          target_language: string | null
         }
         Insert: {
           accepted_at?: string | null
@@ -31,12 +34,15 @@ export type Database = {
           due_date?: string | null
           file_id: string
           id?: string
+          is_premium_translation?: boolean | null
           language: string
           payment_amount: number
           rating?: number | null
           returned_at?: string | null
           returned_file_id?: string | null
+          source_language?: string | null
           status?: string
+          target_language?: string | null
         }
         Update: {
           accepted_at?: string | null
@@ -45,12 +51,15 @@ export type Database = {
           due_date?: string | null
           file_id?: string
           id?: string
+          is_premium_translation?: boolean | null
           language?: string
           payment_amount?: number
           rating?: number | null
           returned_at?: string | null
           returned_file_id?: string | null
+          source_language?: string | null
           status?: string
+          target_language?: string | null
         }
         Relationships: [
           {
