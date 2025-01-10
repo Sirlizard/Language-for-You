@@ -32,8 +32,8 @@ interface Job {
     file_path: string;
   };
   profiles: {
-    username: string;
-    rating: number;
+    username: string | null;
+    rating: number | null;
   };
 }
 
@@ -72,7 +72,7 @@ const History = () => {
         .order("returned_at", { ascending: false });
 
       if (error) throw error;
-      return data as Job[];
+      return data as unknown as Job[];
     },
   });
 
@@ -181,7 +181,7 @@ const History = () => {
                   {format(new Date(job.returned_at), "MMM dd, yyyy")}
                 </TableCell>
                 <TableCell>
-                  {job.profiles.username} ({job.profiles.rating.toFixed(1)} ⭐)
+                  {job.profiles.username} ({job.profiles.rating?.toFixed(1) ?? 0} ⭐)
                 </TableCell>
                 <TableCell>
                   {job.rating ? (
