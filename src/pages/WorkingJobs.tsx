@@ -113,7 +113,7 @@ const WorkingJobs = () => {
 
       if (fileError) throw fileError;
 
-      // Update job with returned file
+      // Update job with returned file and status
       const { error: updateError } = await supabase
         .from("jobs")
         .update({
