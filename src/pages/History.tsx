@@ -31,7 +31,7 @@ interface Job {
     filename: string;
     file_path: string;
   };
-  profiles: {
+  translator_profile: {
     username: string | null;
     rating: number | null;
   };
@@ -63,12 +63,13 @@ const History = () => {
             filename,
             file_path
           ),
-          profiles!jobs_accepted_by_fkey (
+          translator_profile:profiles!inner(
             username,
             rating
           )
         `)
         .eq("status", "returned")
+        .eq("accepted_by", "profiles.id")
         .order("returned_at", { ascending: false });
 
       if (error) throw error;
@@ -181,7 +182,7 @@ const History = () => {
                   {format(new Date(job.returned_at), "MMM dd, yyyy")}
                 </TableCell>
                 <TableCell>
-                  {job.profiles.username} ({job.profiles.rating?.toFixed(1) ?? 0} ⭐)
+                  {job.translator_profile.username} ({job.translator_profile.rating?.toFixed(1) ?? 0} ⭐)
                 </TableCell>
                 <TableCell>
                   {job.rating ? (
