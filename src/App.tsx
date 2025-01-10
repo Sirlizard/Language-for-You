@@ -11,7 +11,7 @@ import JobSubmission from "./pages/JobSubmission";
 import Profile from "./pages/Profile";
 import ViewJobs from "./pages/ViewJobs";
 import WorkingJobs from "./pages/WorkingJobs";
-import JobReturn from "./pages/JobReturn";
+import History from "./pages/History";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -97,10 +97,10 @@ function App() {
               }
             />
             <Route
-              path="/job-return"
+              path="/history"
               element={
                 <ProtectedRoute>
-                  <JobReturn />
+                  <History />
                 </ProtectedRoute>
               }
             />

@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
@@ -13,26 +12,36 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Download, Upload } from "lucide-react";
+import { Download, Star } from "lucide-react";
 
 interface Job {
   id: string;
   language: string;
   payment_amount: number;
-  due_date: string;
+  returned_at: string;
+  rating: number | null;
+  accepted_by: string;
   file_id: string;
+  returned_file_id: string;
   shared_files: {
     filename: string;
     file_path: string;
   };
+  returned_shared_files: {
+    filename: string;
+    file_path: string;
+  };
+  profiles: {
+    username: string;
+    rating: number;
+  };
 }
 
-const WorkingJobs = () => {
-  const [uploading, setUploading] = useState(false);
+const History = () => {
   const { toast } = useToast();
 
   const { data: jobs, refetch } = useQuery({
-    queryKey: ["working-jobs"],
+    queryKey: ["returned-jobs"],
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       const { data, error } = await supabase
@@ -41,15 +50,26 @@ const WorkingJobs = () => {
           id,
           language,
           payment_amount,
-          due_date,
+          returned_at,
+          rating,
+          accepted_by,
           file_id,
+          returned_file_id,
           shared_files!file_id (
             filename,
             file_path
+          ),
+          returned_shared_files:shared_files!returned_file_id (
+            filename,
+            file_path
+          ),
+          profiles!jobs_accepted_by_fkey (
+            username,
+            rating
           )
         `)
-        .eq("status", "accepted")
-        .eq("accepted_by", user?.id);
+        .eq("status", "returned")
+        .order("returned_at", { ascending: false });
 
       if (error) throw error;
       return data as Job[];
@@ -82,64 +102,28 @@ const WorkingJobs = () => {
     }
   };
 
-  const handleFileUpload = async (jobId: string, file: File) => {
+  const submitRating = async (jobId: string, rating: number) => {
     try {
-      setUploading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
-
-      // Upload file to storage
-      const fileExt = file.name.split(".").pop();
-      const filePath = `${crypto.randomUUID()}.${fileExt}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from("shared_files")
-        .upload(filePath, file);
-
-      if (uploadError) throw uploadError;
-
-      // Create shared_files record
-      const { data: fileData, error: fileError } = await supabase
-        .from("shared_files")
-        .insert({
-          filename: file.name,
-          file_path: filePath,
-          uploader_id: user.id,
-          content_type: file.type,
-          file_size: file.size,
-        })
-        .select()
-        .single();
-
-      if (fileError) throw fileError;
-
-      // Update job with returned file
-      const { error: updateError } = await supabase
+      const { error } = await supabase
         .from("jobs")
-        .update({
-          returned_file_id: fileData.id,
-          returned_at: new Date().toISOString(),
-          status: "returned"
-        })
+        .update({ rating })
         .eq("id", jobId);
 
-      if (updateError) throw updateError;
+      if (error) throw error;
 
       toast({
         title: "Success",
-        description: "File returned successfully",
+        description: "Rating submitted successfully",
       });
 
       refetch();
     } catch (error) {
-      console.error("Error returning file:", error);
+      console.error("Error submitting rating:", error);
       toast({
         title: "Error",
-        description: "Failed to return file",
+        description: "Failed to submit rating",
         variant: "destructive",
       });
-    } finally {
-      setUploading(false);
     }
   };
 
@@ -147,27 +131,23 @@ const WorkingJobs = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <div className="container mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6">Working Jobs</h1>
+        <h1 className="text-3xl font-bold mb-6">Job History</h1>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>File Name</TableHead>
+              <TableHead>Original File</TableHead>
+              <TableHead>Returned File</TableHead>
               <TableHead>Language</TableHead>
               <TableHead>Payment</TableHead>
-              <TableHead>Due Date</TableHead>
-              <TableHead>Actions</TableHead>
+              <TableHead>Returned At</TableHead>
+              <TableHead>Translator</TableHead>
+              <TableHead>Rating</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {jobs?.map((job) => (
               <TableRow key={job.id}>
-                <TableCell>{job.shared_files.filename}</TableCell>
-                <TableCell>{job.language}</TableCell>
-                <TableCell>${job.payment_amount}</TableCell>
                 <TableCell>
-                  {format(new Date(job.due_date), "MMM dd, yyyy")}
-                </TableCell>
-                <TableCell className="space-x-2">
                   <Button
                     variant="outline"
                     onClick={() =>
@@ -178,26 +158,48 @@ const WorkingJobs = () => {
                     }
                   >
                     <Download className="mr-2 h-4 w-4" />
-                    Download
+                    {job.shared_files.filename}
                   </Button>
+                </TableCell>
+                <TableCell>
                   <Button
                     variant="outline"
-                    disabled={uploading}
-                    onClick={() => {
-                      const input = document.createElement("input");
-                      input.type = "file";
-                      input.onchange = (e) => {
-                        const file = (e.target as HTMLInputElement).files?.[0];
-                        if (file) {
-                          handleFileUpload(job.id, file);
-                        }
-                      };
-                      input.click();
-                    }}
+                    onClick={() =>
+                      downloadFile(
+                        job.returned_shared_files.file_path,
+                        job.returned_shared_files.filename
+                      )
+                    }
                   >
-                    <Upload className="mr-2 h-4 w-4" />
-                    Return File
+                    <Download className="mr-2 h-4 w-4" />
+                    {job.returned_shared_files.filename}
                   </Button>
+                </TableCell>
+                <TableCell>{job.language}</TableCell>
+                <TableCell>${job.payment_amount}</TableCell>
+                <TableCell>
+                  {format(new Date(job.returned_at), "MMM dd, yyyy")}
+                </TableCell>
+                <TableCell>
+                  {job.profiles.username} ({job.profiles.rating.toFixed(1)} ⭐)
+                </TableCell>
+                <TableCell>
+                  {job.rating ? (
+                    `${job.rating} ⭐`
+                  ) : (
+                    <div className="flex gap-1">
+                      {[1, 2, 3, 4, 5].map((rating) => (
+                        <Button
+                          key={rating}
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => submitRating(job.id, rating)}
+                        >
+                          <Star className="h-4 w-4" />
+                        </Button>
+                      ))}
+                    </div>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
@@ -208,4 +210,4 @@ const WorkingJobs = () => {
   );
 };
 
-export default WorkingJobs;
+export default History;
