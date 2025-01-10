@@ -63,13 +63,13 @@ const History = () => {
             filename,
             file_path
           ),
-          translator_profile:profiles!inner(
+          translator_profile:profiles (
             username,
             rating
           )
         `)
         .eq("status", "returned")
-        .eq("accepted_by", "profiles.id")
+        .eq("translator_profile.id", "accepted_by")
         .order("returned_at", { ascending: false });
 
       if (error) throw error;
