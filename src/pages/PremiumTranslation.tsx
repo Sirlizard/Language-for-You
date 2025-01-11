@@ -86,7 +86,7 @@ const PremiumTranslation = () => {
 
       if (fileError) throw fileError;
 
-      // Create premium translation job with correct status
+      // Create premium translation job
       const { data: jobData, error: jobError } = await supabase
         .from("jobs")
         .insert({
