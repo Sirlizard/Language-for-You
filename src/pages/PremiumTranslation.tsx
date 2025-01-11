@@ -6,14 +6,57 @@ import { supabase } from "@/integrations/supabase/client";
 import { FileUpload } from "@/components/premium-translation/FileUpload";
 import { LanguageSelector } from "@/components/premium-translation/LanguageSelector";
 import { PriceDisplay } from "@/components/premium-translation/PriceDisplay";
+import { Download } from "lucide-react";
 
 const PremiumTranslation = () => {
   const [file, setFile] = useState<File | null>(null);
   const [sourceLanguage, setSourceLanguage] = useState<string>("");
   const [targetLanguage, setTargetLanguage] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [translatedFileId, setTranslatedFileId] = useState<string | null>(null);
   const { toast } = useToast();
   const price = Math.floor(Math.random() * 1000);
+
+  const downloadTranslatedFile = async () => {
+    if (!translatedFileId) return;
+
+    try {
+      const { data: fileData } = await supabase
+        .from("shared_files")
+        .select("*")
+        .eq("id", translatedFileId)
+        .single();
+
+      if (!fileData) throw new Error("File not found");
+
+      const { data, error: downloadError } = await supabase.storage
+        .from("shared_files")
+        .download(fileData.file_path);
+
+      if (downloadError) throw downloadError;
+
+      const url = URL.createObjectURL(data);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileData.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Success",
+        description: "File downloaded successfully",
+      });
+    } catch (error) {
+      console.error("Error downloading file:", error);
+      toast({
+        title: "Error",
+        description: "Failed to download file",
+        variant: "destructive",
+      });
+    }
+  };
 
   const handleTranslation = async () => {
     if (!file || !sourceLanguage || !targetLanguage) {
@@ -81,6 +124,17 @@ const PremiumTranslation = () => {
 
       if (translationError) throw translationError;
 
+      // Get the translated file ID
+      const { data: updatedJob } = await supabase
+        .from("jobs")
+        .select("returned_file_id")
+        .eq("id", jobData.id)
+        .single();
+
+      if (updatedJob?.returned_file_id) {
+        setTranslatedFileId(updatedJob.returned_file_id);
+      }
+
       toast({
         title: "Success",
         description: "Translation job created and processed successfully",
@@ -136,6 +190,17 @@ const PremiumTranslation = () => {
           >
             {isLoading ? "Processing..." : "Translate File"}
           </Button>
+
+          {translatedFileId && (
+            <Button
+              onClick={downloadTranslatedFile}
+              variant="outline"
+              className="w-full"
+            >
+              <Download className="mr-2" />
+              Download Translated File
+            </Button>
+          )}
         </div>
       </div>
     </div>
