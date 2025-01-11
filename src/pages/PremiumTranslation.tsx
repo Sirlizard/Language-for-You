@@ -87,23 +87,35 @@ const PremiumTranslation = () => {
       if (fileError) throw fileError;
 
       // Create premium translation job
-      const { error: jobError } = await supabase
+      const { data: jobData, error: jobError } = await supabase
         .from("jobs")
         .insert({
           file_id: fileData.id,
           language: targetLanguage,
           payment_amount: price,
-          status: "premium_translation_completed",
+          status: "pending_translation",
           is_premium_translation: true,
           source_language: sourceLanguage,
           target_language: targetLanguage,
-        });
+        })
+        .select()
+        .single();
 
       if (jobError) throw jobError;
 
+      // Call translation function
+      const { error: translationError } = await supabase.functions.invoke(
+        "translate-file",
+        {
+          body: { jobId: jobData.id },
+        }
+      );
+
+      if (translationError) throw translationError;
+
       toast({
         title: "Success",
-        description: "Translation job created successfully",
+        description: "Translation job created and processed successfully",
       });
 
       // Reset form
@@ -114,7 +126,7 @@ const PremiumTranslation = () => {
       console.error("Error:", error);
       toast({
         title: "Error",
-        description: "Failed to create translation job",
+        description: "Failed to process translation job",
         variant: "destructive",
       });
     } finally {
