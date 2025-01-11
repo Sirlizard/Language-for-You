@@ -58,7 +58,7 @@ serve(async (req) => {
 
     // Call Gemini API for translation
     console.log('Calling Gemini API for translation')
-    const response = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', {
+    const geminiResponse = await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -73,12 +73,13 @@ serve(async (req) => {
       }),
     })
 
-    if (!response.ok) {
-      console.error('Gemini API error:', await response.text())
+    if (!geminiResponse.ok) {
+      const errorText = await geminiResponse.text()
+      console.error('Gemini API error:', errorText)
       throw new Error('Translation failed')
     }
 
-    const translationResult = await response.json()
+    const translationResult = await geminiResponse.json()
     const translatedText = translationResult.candidates[0].content.parts[0].text
     console.log('Translation completed, length:', translatedText.length)
 
