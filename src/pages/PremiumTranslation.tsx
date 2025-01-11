@@ -1,30 +1,11 @@
 import { useState } from "react";
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-
-const LANGUAGES = [
-  "English",
-  "Spanish",
-  "French",
-  "German",
-  "Italian",
-  "Portuguese",
-  "Russian",
-  "Japanese",
-  "Korean",
-  "Chinese",
-  "Arabic",
-];
+import { FileUpload } from "@/components/premium-translation/FileUpload";
+import { LanguageSelector } from "@/components/premium-translation/LanguageSelector";
+import { PriceDisplay } from "@/components/premium-translation/PriceDisplay";
 
 const PremiumTranslation = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -33,21 +14,6 @@ const PremiumTranslation = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const price = Math.floor(Math.random() * 1000);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = e.target.files?.[0];
-    if (selectedFile) {
-      if (selectedFile.type === "text/plain" || selectedFile.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document") {
-        setFile(selectedFile);
-      } else {
-        toast({
-          title: "Invalid file type",
-          description: "Please upload a .txt or .docx file",
-          variant: "destructive",
-        });
-      }
-    }
-  };
 
   const handleTranslation = async () => {
     if (!file || !sourceLanguage || !targetLanguage) {
@@ -146,56 +112,22 @@ const PremiumTranslation = () => {
         </p>
 
         <div className="max-w-2xl space-y-6">
-          <div>
-            <Label htmlFor="file">Upload File (txt or docx)</Label>
-            <input
-              id="file"
-              type="file"
-              accept=".txt,.docx"
-              onChange={handleFileChange}
-              className="mt-1 block w-full"
+          <FileUpload onFileChange={setFile} />
+
+          <div className="grid grid-cols-2 gap-4">
+            <LanguageSelector
+              label="Source Language"
+              value={sourceLanguage}
+              onChange={setSourceLanguage}
+            />
+            <LanguageSelector
+              label="Target Language"
+              value={targetLanguage}
+              onChange={setTargetLanguage}
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Source Language</Label>
-              <Select value={sourceLanguage} onValueChange={setSourceLanguage}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select source language" />
-                </SelectTrigger>
-                <SelectContent>
-                  {LANGUAGES.map((lang) => (
-                    <SelectItem key={lang} value={lang}>
-                      {lang}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label>Target Language</Label>
-              <Select value={targetLanguage} onValueChange={setTargetLanguage}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select target language" />
-                </SelectTrigger>
-                <SelectContent>
-                  {LANGUAGES.map((lang) => (
-                    <SelectItem key={lang} value={lang}>
-                      {lang}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="bg-gray-50 p-4 rounded-lg">
-            <p className="text-lg font-semibold">
-              Translation Price: ${price}
-            </p>
-          </div>
+          <PriceDisplay price={price} />
 
           <Button
             onClick={handleTranslation}
