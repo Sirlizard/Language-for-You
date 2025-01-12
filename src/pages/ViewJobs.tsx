@@ -50,17 +50,16 @@ const ViewJobs = () => {
     try {
       console.log("Accepting job with ID:", jobId);
       
+      // Simplified update query without select()
       const { error } = await supabase
         .from("jobs")
         .update({
-          status: "accepted", // This is the key change - ensuring we use "accepted" as the status
+          status: "accepted",
           accepted_by: (await supabase.auth.getUser()).data.user?.id,
           accepted_at: new Date().toISOString(),
           due_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
         })
-        .eq("id", jobId)
-        .select()
-        .single();
+        .eq("id", jobId);
 
       if (error) {
         console.error("Error accepting job:", error);
