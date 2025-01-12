@@ -121,13 +121,13 @@ serve(async (req) => {
       throw new Error('Failed to create shared file record')
     }
 
-    // Update job with translated file
+    // Update job with translated file and status
     const { error: updateError } = await supabase
       .from('jobs')
       .update({
         returned_file_id: sharedFile.id,
         returned_at: new Date().toISOString(),
-        status: 'premium_translation_completed'
+        status: 'completed'  // Changed from 'premium_translation_completed' to 'completed'
       })
       .eq('id', jobId)
 
