@@ -19,11 +19,16 @@ serve(async (req) => {
     const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
 
+    // Convert roles to match Gemini's expected format
+    const formattedHistory = history.map((msg: any) => ({
+      role: msg.role === 'assistant' ? 'model' : 'user',
+      parts: msg.content,
+    }));
+
+    console.log('Formatted history:', formattedHistory);
+
     const chat = model.startChat({
-      history: history.map((msg: any) => ({
-        role: msg.role,
-        parts: msg.content,
-      })),
+      history: formattedHistory,
     });
 
     console.log('Sending message to Gemini API...');
