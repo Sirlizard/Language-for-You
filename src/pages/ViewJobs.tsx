@@ -48,17 +48,24 @@ const ViewJobs = () => {
 
   const acceptJob = async (jobId: string) => {
     try {
+      console.log("Accepting job with ID:", jobId);
+      
       const { error } = await supabase
         .from("jobs")
         .update({
-          status: "accepted",
+          status: "accepted", // This is the key change - ensuring we use "accepted" as the status
           accepted_by: (await supabase.auth.getUser()).data.user?.id,
           accepted_at: new Date().toISOString(),
           due_date: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000).toISOString(),
         })
-        .eq("id", jobId);
+        .eq("id", jobId)
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error accepting job:", error);
+        throw error;
+      }
 
       toast({
         title: "Success",
