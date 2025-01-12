@@ -96,7 +96,7 @@ export const TranslationSection = () => {
           file_id: fileData.id,
           language: targetLanguage,
           payment_amount: price,
-          status: "pending_translation",
+          status: "open", // Changed from "pending_translation" to "open"
           is_premium_translation: true,
           source_language: sourceLanguage,
           target_language: targetLanguage,
