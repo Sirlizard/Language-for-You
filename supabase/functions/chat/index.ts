@@ -1,5 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "https://esm.sh/@google/generative-ai@0.1.3";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -13,6 +13,8 @@ serve(async (req) => {
 
   try {
     const { message, history } = await req.json();
+    console.log('Received message:', message);
+    console.log('Chat history:', history);
 
     const genAI = new GoogleGenerativeAI(Deno.env.get('GEMINI_API_KEY') || '');
     const model = genAI.getGenerativeModel({ model: "gemini-pro" });
@@ -24,9 +26,11 @@ serve(async (req) => {
       })),
     });
 
+    console.log('Sending message to Gemini API...');
     const result = await chat.sendMessage(message);
     const response = await result.response;
     const text = response.text();
+    console.log('Received response from Gemini API:', text);
 
     return new Response(
       JSON.stringify({ response: text }),
