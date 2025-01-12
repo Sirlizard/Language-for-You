@@ -21,16 +21,21 @@ serve(async (req) => {
     const formData = await req.formData()
     const file = formData.get('file') as File
     const language = formData.get('language') as string
+    const userId = formData.get('userId') as string
 
-    if (!file) {
-      throw new Error('No file provided')
+    if (!file || !language || !userId) {
+      throw new Error('Missing required fields')
     }
+
+    console.log('Processing file:', file.name, 'for language:', language)
 
     // Read the file content
     const text = await file.text()
 
     // Select voice based on language (using a default voice for now)
     const voiceId = 'EXAVITQu4vr4xnSDxMaL' // Sarah's voice ID
+
+    console.log('Calling ElevenLabs API...')
 
     // Call ElevenLabs API to generate audio
     const response = await fetch(
@@ -55,8 +60,11 @@ serve(async (req) => {
 
     if (!response.ok) {
       const error = await response.text()
+      console.error('ElevenLabs API error:', error)
       throw new Error(`ElevenLabs API error: ${error}`)
     }
+
+    console.log('Audio generated successfully, uploading to Supabase Storage...')
 
     const audioBuffer = await response.arrayBuffer()
     
@@ -70,8 +78,11 @@ serve(async (req) => {
       })
 
     if (uploadError) {
+      console.error('Storage upload error:', uploadError)
       throw uploadError
     }
+
+    console.log('Audio file uploaded, creating database record...')
 
     // Create a record in the shared_files table
     const { data: fileData, error: fileError } = await supabase
@@ -81,14 +92,17 @@ serve(async (req) => {
         file_path: audioFileName,
         content_type: 'audio/mpeg',
         file_size: audioBuffer.byteLength,
-        uploader_id: (await req.json()).userId,
+        uploader_id: userId,
       })
       .select()
       .single()
 
     if (fileError) {
+      console.error('Database insert error:', fileError)
       throw fileError
     }
+
+    console.log('Database record created successfully')
 
     // Create a job record
     const { error: jobError } = await supabase
@@ -104,6 +118,7 @@ serve(async (req) => {
       })
 
     if (jobError) {
+      console.error('Job creation error:', jobError)
       throw jobError
     }
 

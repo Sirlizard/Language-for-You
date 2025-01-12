@@ -69,12 +69,14 @@ export const VoiceOverSection = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("User not authenticated");
 
+      // Create FormData object
       const formData = new FormData();
       formData.append('file', file);
       formData.append('language', voiceLanguage);
+      formData.append('userId', user.id);
 
       const { data, error } = await supabase.functions.invoke('voice-over', {
-        body: { ...formData, userId: user.id }
+        body: formData,
       });
 
       if (error) throw error;
