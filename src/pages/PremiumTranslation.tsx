@@ -7,24 +7,32 @@ import { FileUpload } from "@/components/premium-translation/FileUpload";
 import { LanguageSelector } from "@/components/premium-translation/LanguageSelector";
 import { PriceDisplay } from "@/components/premium-translation/PriceDisplay";
 import { Download } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 const PremiumTranslation = () => {
+  // Translation states
   const [file, setFile] = useState<File | null>(null);
   const [sourceLanguage, setSourceLanguage] = useState<string>("");
   const [targetLanguage, setTargetLanguage] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [translatedFileId, setTranslatedFileId] = useState<string | null>(null);
+  
+  // Voice-over states
+  const [voiceOverFile, setVoiceOverFile] = useState<File | null>(null);
+  const [voiceLanguage, setVoiceLanguage] = useState<string>("");
+  const [isProcessingVoice, setIsProcessingVoice] = useState(false);
+  const [voiceFileId, setVoiceFileId] = useState<string | null>(null);
+  
   const { toast } = useToast();
   const price = Math.floor(Math.random() * 1000);
 
-  const downloadTranslatedFile = async () => {
-    if (!translatedFileId) return;
-
+  const downloadFile = async (fileId: string, prefix: string) => {
     try {
       const { data: fileData } = await supabase
         .from("shared_files")
         .select("*")
-        .eq("id", translatedFileId)
+        .eq("id", fileId)
         .single();
 
       if (!fileData) throw new Error("File not found");
@@ -38,7 +46,7 @@ const PremiumTranslation = () => {
       const url = URL.createObjectURL(data);
       const link = document.createElement("a");
       link.href = url;
-      link.download = fileData.filename;
+      link.download = `${prefix}_${fileData.filename}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -156,51 +164,139 @@ const PremiumTranslation = () => {
     }
   };
 
+  const handleVoiceOver = async () => {
+    if (!voiceOverFile || !voiceLanguage) {
+      toast({
+        title: "Missing information",
+        description: "Please select a file and language for voice-over",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsProcessingVoice(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("User not authenticated");
+
+      const formData = new FormData();
+      formData.append('file', voiceOverFile);
+      formData.append('language', voiceLanguage);
+
+      const { data, error } = await supabase.functions.invoke('voice-over', {
+        body: { ...formData, userId: user.id }
+      });
+
+      if (error) throw error;
+
+      setVoiceFileId(data.fileId);
+      toast({
+        title: "Success",
+        description: "Voice-over generated successfully",
+      });
+    } catch (error) {
+      console.error("Error:", error);
+      toast({
+        title: "Error",
+        description: "Failed to generate voice-over",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessingVoice(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <div className="container mx-auto p-6">
-        <h1 className="text-3xl font-bold mb-6">Premium Translation</h1>
-        <p className="mb-8 text-gray-600">
-          This feature is for a simple AI translation meant for only premium users.
-        </p>
+        <div className="space-y-8">
+          {/* Translation Section */}
+          <Card className="p-6">
+            <h1 className="text-3xl font-bold mb-6">Premium Translation</h1>
+            <p className="mb-8 text-gray-600">
+              This feature is for a simple AI translation meant for only premium users.
+            </p>
 
-        <div className="max-w-2xl space-y-6">
-          <FileUpload onFileChange={setFile} />
+            <div className="max-w-2xl space-y-6">
+              <FileUpload onFileChange={setFile} />
 
-          <div className="grid grid-cols-2 gap-4">
-            <LanguageSelector
-              label="Source Language"
-              value={sourceLanguage}
-              onChange={setSourceLanguage}
-            />
-            <LanguageSelector
-              label="Target Language"
-              value={targetLanguage}
-              onChange={setTargetLanguage}
-            />
-          </div>
+              <div className="grid grid-cols-2 gap-4">
+                <LanguageSelector
+                  label="Source Language"
+                  value={sourceLanguage}
+                  onChange={setSourceLanguage}
+                />
+                <LanguageSelector
+                  label="Target Language"
+                  value={targetLanguage}
+                  onChange={setTargetLanguage}
+                />
+              </div>
 
-          <PriceDisplay price={price} />
+              <PriceDisplay price={price} />
 
-          <Button
-            onClick={handleTranslation}
-            disabled={!file || !sourceLanguage || !targetLanguage || isLoading}
-            className="w-full"
-          >
-            {isLoading ? "Processing..." : "Translate File"}
-          </Button>
+              <Button
+                onClick={handleTranslation}
+                disabled={!file || !sourceLanguage || !targetLanguage || isLoading}
+                className="w-full"
+              >
+                {isLoading ? "Processing..." : "Translate File"}
+              </Button>
 
-          {translatedFileId && (
-            <Button
-              onClick={downloadTranslatedFile}
-              variant="outline"
-              className="w-full"
-            >
-              <Download className="mr-2" />
-              Download Translated File
-            </Button>
-          )}
+              {translatedFileId && (
+                <Button
+                  onClick={() => downloadFile(translatedFileId, 'translated')}
+                  variant="outline"
+                  className="w-full"
+                >
+                  <Download className="mr-2" />
+                  Download Translated File
+                </Button>
+              )}
+            </div>
+          </Card>
+
+          <Separator />
+
+          {/* Voice Over Section */}
+          <Card className="p-6">
+            <h1 className="text-3xl font-bold mb-6">Premium Voice Over</h1>
+            <p className="mb-8 text-gray-600">
+              Convert your text into natural-sounding speech in multiple languages.
+            </p>
+
+            <div className="max-w-2xl space-y-6">
+              <FileUpload onFileChange={setVoiceOverFile} />
+
+              <LanguageSelector
+                label="Voice Language"
+                value={voiceLanguage}
+                onChange={setVoiceLanguage}
+              />
+
+              <PriceDisplay price={price} />
+
+              <Button
+                onClick={handleVoiceOver}
+                disabled={!voiceOverFile || !voiceLanguage || isProcessingVoice}
+                className="w-full"
+              >
+                {isProcessingVoice ? "Processing..." : "Generate Voice Over"}
+              </Button>
+
+              {voiceFileId && (
+                <Button
+                  onClick={() => downloadFile(voiceFileId, 'voice_over')}
+                  variant="outline"
+                  className="w-full"
+                >
+                  <Download className="mr-2" />
+                  Download Audio File
+                </Button>
+              )}
+            </div>
+          </Card>
         </div>
       </div>
     </div>
