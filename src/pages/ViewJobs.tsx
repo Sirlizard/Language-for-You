@@ -19,7 +19,7 @@ interface Job {
   file_id: string;
   shared_files: {
     filename: string;
-  };
+  } | null;
 }
 
 const ViewJobs = () => {
@@ -50,7 +50,6 @@ const ViewJobs = () => {
     try {
       console.log("Accepting job with ID:", jobId);
       
-      // Simplified update query without select()
       const { error } = await supabase
         .from("jobs")
         .update({
@@ -99,7 +98,9 @@ const ViewJobs = () => {
           <TableBody>
             {jobs?.map((job) => (
               <TableRow key={job.id}>
-                <TableCell>{job.shared_files.filename}</TableCell>
+                <TableCell>
+                  {job.shared_files?.filename || "File not found"}
+                </TableCell>
                 <TableCell>{job.language}</TableCell>
                 <TableCell>${job.payment_amount}</TableCell>
                 <TableCell>
