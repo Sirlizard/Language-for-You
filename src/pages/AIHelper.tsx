@@ -11,6 +11,9 @@ const AIHelper = () => {
           <p className="text-lg text-muted-foreground">
             Utilize the chat for any questions that you might have about localizing.
           </p>
+          <p className="text-sm text-muted-foreground italic">
+            Chat bot provided by Gemini
+          </p>
         </div>
         <ChatBox />
       </main>
