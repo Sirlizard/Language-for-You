@@ -24,7 +24,7 @@ interface Job {
   shared_files: {
     filename: string;
     file_path: string;
-  };
+  } | null;
 }
 
 const WorkingJobs = () => {
@@ -52,7 +52,14 @@ const WorkingJobs = () => {
         .eq("accepted_by", user?.id);
 
       if (error) throw error;
-      return data as Job[];
+      
+      // Add null check for shared_files
+      const jobsWithNullCheck = data?.map(job => ({
+        ...job,
+        shared_files: job.shared_files || null
+      })) || [];
+      
+      return jobsWithNullCheck as Job[];
     },
   });
 
@@ -161,25 +168,27 @@ const WorkingJobs = () => {
           <TableBody>
             {jobs?.map((job) => (
               <TableRow key={job.id}>
-                <TableCell>{job.shared_files.filename}</TableCell>
+                <TableCell>{job.shared_files?.filename || "No file name"}</TableCell>
                 <TableCell>{job.language}</TableCell>
                 <TableCell>${job.payment_amount}</TableCell>
                 <TableCell>
-                  {format(new Date(job.due_date), "MMM dd, yyyy")}
+                  {job.due_date ? format(new Date(job.due_date), "MMM dd, yyyy") : "No due date"}
                 </TableCell>
                 <TableCell className="space-x-2">
-                  <Button
-                    variant="outline"
-                    onClick={() =>
-                      downloadFile(
-                        job.shared_files.file_path,
-                        job.shared_files.filename
-                      )
-                    }
-                  >
-                    <Download className="mr-2 h-4 w-4" />
-                    Download
-                  </Button>
+                  {job.shared_files && (
+                    <Button
+                      variant="outline"
+                      onClick={() =>
+                        downloadFile(
+                          job.shared_files.file_path,
+                          job.shared_files.filename
+                        )
+                      }
+                    >
+                      <Download className="mr-2 h-4 w-4" />
+                      Download
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     disabled={uploading}
