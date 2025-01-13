@@ -1,7 +1,8 @@
 import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
-import { User, Upload, Briefcase, Clock, History, Crown } from "lucide-react";
+import { User, Upload, Briefcase, Clock, History, Crown, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { ChatBox } from "@/components/ChatBox";
 
 const Index = () => {
@@ -13,15 +14,7 @@ const Index = () => {
           <h1 className="text-4xl font-bold font-cambria">
             Hello and welcome to Language for You
           </h1>
-          <p className="text-lg text-muted-foreground">
-            Utilize the chat for any questions that you might have about localizing.
-          </p>
-          <p className="text-sm text-muted-foreground italic">
-            Chat bot provided by Gemini
-          </p>
         </div>
-
-        <ChatBox />
 
         <div className="max-w-4xl mx-auto space-y-8 mb-12">
           <div className="space-y-2">
@@ -105,6 +98,26 @@ const Index = () => {
           </div>
         </div>
       </main>
+
+      {/* Chat Popup */}
+      <Sheet>
+        <SheetTrigger asChild>
+          <Button
+            className="fixed bottom-4 right-4 rounded-full w-12 h-12 p-0 shadow-lg"
+            size="icon"
+          >
+            <MessageSquare className="h-6 w-6" />
+          </Button>
+        </SheetTrigger>
+        <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+          <div className="h-full flex flex-col">
+            <h2 className="text-lg font-semibold mb-4">Chat Assistant</h2>
+            <div className="flex-1 overflow-hidden">
+              <ChatBox />
+            </div>
+          </div>
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

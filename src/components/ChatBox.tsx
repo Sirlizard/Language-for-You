@@ -41,8 +41,8 @@ export function ChatBox() {
   };
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-4 space-y-4">
-      <div className="bg-white rounded-lg shadow p-4 min-h-[300px] max-h-[500px] overflow-y-auto space-y-4">
+    <div className="flex flex-col h-full">
+      <div className="flex-1 overflow-y-auto space-y-4 mb-4">
         {chatHistory.map((msg, index) => (
           <div
             key={index}
@@ -62,7 +62,7 @@ export function ChatBox() {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Type your message here..."
-          className="flex-1"
+          className="flex-1 min-h-[80px]"
         />
         <Button type="submit" disabled={isLoading || !message.trim()}>
           Send
