@@ -1,5 +1,4 @@
 import { Header } from "@/components/Header";
-import { ChatBox } from "@/components/ChatBox";
 import { Button } from "@/components/ui/button";
 import { User, Upload, Briefcase, Clock, History, Crown } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -99,8 +98,6 @@ const Index = () => {
             </Link>
           </div>
         </div>
-
-        <ChatBox />
       </main>
     </div>
   );

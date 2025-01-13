@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, User, Upload, Briefcase, Clock, History, Crown } from "lucide-react";
+import { Home, User, Upload, Briefcase, Clock, History, Crown, MessageSquare } from "lucide-react";
 
 export const Header = () => {
   const location = useLocation();
@@ -55,6 +55,15 @@ export const Header = () => {
               >
                 <Crown className="h-4 w-4" />
                 Premium Translation
+              </Button>
+            </Link>
+            <Link to="/ai-helper">
+              <Button 
+                variant={isActive("/ai-helper") ? "default" : "ghost"}
+                className="flex items-center gap-2"
+              >
+                <MessageSquare className="h-4 w-4" />
+                AI Helper
               </Button>
             </Link>
             <Link to="/submit-job">
