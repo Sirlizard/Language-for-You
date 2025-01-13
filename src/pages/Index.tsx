@@ -2,6 +2,7 @@ import { Header } from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { User, Upload, Briefcase, Clock, History, Crown } from "lucide-react";
 import { Link } from "react-router-dom";
+import { ChatBox } from "@/components/ChatBox";
 
 const Index = () => {
   return (
@@ -15,7 +16,12 @@ const Index = () => {
           <p className="text-lg text-muted-foreground">
             Utilize the chat for any questions that you might have about localizing.
           </p>
+          <p className="text-sm text-muted-foreground italic">
+            Chat bot provided by Gemini
+          </p>
         </div>
+
+        <ChatBox />
 
         <div className="max-w-4xl mx-auto space-y-8 mb-12">
           <div className="space-y-2">
