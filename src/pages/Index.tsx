@@ -103,10 +103,10 @@ const Index = () => {
       <Sheet>
         <SheetTrigger asChild>
           <Button
-            className="fixed bottom-4 right-4 rounded-full w-12 h-12 p-0 shadow-lg"
+            className="fixed bottom-8 right-8 rounded-full w-16 h-16 p-0 shadow-lg hover:scale-110 transition-transform"
             size="icon"
           >
-            <MessageSquare className="h-6 w-6" />
+            <MessageSquare className="h-8 w-8" />
           </Button>
         </SheetTrigger>
         <SheetContent side="right" className="w-[400px] sm:w-[540px]">
